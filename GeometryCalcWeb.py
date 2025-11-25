@@ -1,67 +1,86 @@
 # INET 4031 Intro to Systems
-# 
 # Project: Geometry Calculator Web App
-#
-# Sample Code for the Python Flask Web App Implementation of the Geometry Calculator
-#
 # Author: Joe Axberg
-# Orig Date: 3/31/2022
-# Mod Date: 12/30/2023
-# Mod Date: 12/31/2024
-#
+# Updated for lab use: 2025
 
-# imports
-from flask import Flask, request, render_template, redirect, url_for
-import cylinder #<--why?
-import sphere
+from flask import Flask, request, redirect, url_for
+import cylinder
+from sphere import Sphere
 
-#flask plumbing
 app = Flask(__name__)
 
-#flask route for the index aka 'home' page
-#uses html template for user selection
-@app.route("/", methods = ["GET", "POST"])
+# Home page - choose calculator
+@app.route("/", methods=["GET", "POST"])
 def mainForm():
-   if request.method == "POST":
-      sphere = request.form.get("sphere")
-      cylinder = request.form.get("cylinder")
-      print("Selection was: ", sphere, cylinder) #prints to command line for trouble shooting
-      if sphere == "on":
-         print("User selected sphere") #prints to command line for trouble shooting
-         #something needs to go here
-      elif cylinder == "on":
-         print("User selected cylinder") #prints to command line for trouble shooting
-         return redirect(url_for('cylinderForm'))
-   return render_template("index.html")
+    if request.method == "POST":
+        sphere_choice = request.form.get("sphere")
+        cylinder_choice = request.form.get("cylinder")
 
-#flask route for the cylinder calculations page
-@app.route("/cylinder", methods = ["GET", "POST"])
+        if sphere_choice == "on":
+            return redirect(url_for('sphereForm'))
+        elif cylinder_choice == "on":
+            return redirect(url_for('cylinderForm'))
+
+    # Simple HTML form embedded in the route
+    return '''
+    <h1>Geometry Calculator</h1>
+    <form method="POST">
+        <input type="checkbox" name="sphere"> Sphere<br>
+        <input type="checkbox" name="cylinder"> Cylinder<br><br>
+        <button type="submit">Make Selection</button>
+    </form>
+    '''
+
+# Cylinder page
+@app.route("/cylinder", methods=["GET", "POST"])
 def cylinderForm():
-   if request.method == "POST":
-       # getting input with name = fname in HTML form
-       radius = request.form.get("rad")
-       # getting input with name = lname in HTML form 
-       height = request.form.get("hgt") 
-       vol = cylinder.volume(int(radius), int(height))
-       return "User entered: Radius "+ str(radius) + " and Height: " + str(height) + ". <p>The Volume is: " + str(vol)
-   return render_template("cylinder.html")
+    if request.method == "POST":
+        radius = request.form.get("rad")
+        height = request.form.get("hgt")
+        vol = cylinder.volume(int(radius), int(height))
+        return f'''
+        <h1>Cylinder Volume Calculator</h1>
+        <p>Radius: {radius}</p>
+        <p>Height: {height}</p>
+        <p>Volume: {vol}</p>
+        <a href="/">Home</a>
+        '''
 
-#flask route for the sphere calculations page
-#the student needs to complete the code in sphere.py, write a unit test for sphere.py and
-#add a sphere.html template to the ./templates folder
-@app.route("/sphere", methods = ["GET", "POST"])
+    return '''
+    <h1>Cylinder Volume Calculator</h1>
+    <form method="POST">
+        <label>Radius:</label>
+        <input type="text" name="rad" required><br><br>
+        <label>Height:</label>
+        <input type="text" name="hgt" required><br><br>
+        <button type="submit">Calculate Volume</button>
+    </form>
+    <a href="/">Home</a>
+    '''
+
+# Sphere page
+@app.route("/sphere", methods=["GET", "POST"])
 def sphereForm():
-   if request.method == "POST":
-       # getting input with name = fname in HTML form
-       radius = request.form.get("rad")
-       # getting input with name = lname in HTML form 
-       height = request.form.get("hgt") 
-       vol = sphere.volume(int(radius), int(height))
-       return "User entered: Radius "+ str(radius) + " and Height: " + str(height) + ". <p>The Volume is: " + str(vol)
-       #where is the sphere.html file?
-   return render_template("sphere.html")
+    if request.method == "POST":
+        radius = request.form.get("rad")
+        s = Sphere(float(radius))
+        vol = s.volume()
+        return f'''
+        <h1>Sphere Volume Calculator</h1>
+        <p>Radius: {radius}</p>
+        <p>Volume: {vol}</p>
+        <a href="/">Home</a>
+        '''
 
-#more code here for the rest of the calculators: sphere, cube, etc.
-  
-if __name__=='__main__':   #more flask plumbing so the environment starts correctly
-   app.run(host='0.0.0.0')
+    return '''
+    <h1>Sphere Volume Calculator</h1>
+    <form method="POST">
+        <label>Radius:</label>
+        <input type="text" name="rad" required><br><br>
+        <button type="submit">Calculate Volume</button>
+    </form>
+    <a href="/">Home</a>
+    '''
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

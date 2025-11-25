@@ -1,17 +1,19 @@
-# inspiration code for Python Unit Testing Project
+# sphere.py
+import math
 
-def surfaceArea():
-    pass
+class Sphere:
+    def __init__(self, radius):
+        self.radius = radius
 
-def volume():
-    pass
+    def surfaceArea(self):
+        return 4 * math.pi * (self.radius ** 2)
 
-def prompt():
-    print()
-    print("------------------------------------------------------------")
-    print("PYTHON PROGRAM TO FIND THE VOLUME OF A SPHERE")
-    print("------------------------------------------------------------")
-    radius = int(input("Please Enter the radius :"))
+    def volume(self):
+        return (4/3) * math.pi * (self.radius ** 3)
 
+# Optional: keep this part at the bottom only for testing the script manually
 if __name__ == '__main__':
-    prompt()
+    radius = float(input("Enter radius: "))
+    s = Sphere(radius)
+    print("Surface Area:", s.surfaceArea())
+    print("Volume:", s.volume())
